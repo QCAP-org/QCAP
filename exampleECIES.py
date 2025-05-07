@@ -26,24 +26,24 @@ def ecies_encrypt(receiver_public_key, message: bytes):
     ephemeral_public_key = ephemeral_private_key.public_key()
 
     # 2. ECDH (Elliptic Curve Diffie-Hellman) method to generate a shared key between two participants (finding a shared point in the EC).
-    shared_key = ephemeral_private_key.exchange(ec.ECDH(), receiver_public_key)
+    shared_key = ephemeral_private_key.exchange(ec.ECDH(), receiver_public_key) #It's a large binary string of bytes.
 
-    # 3. Symmetric key derivation
-    derived_key = HKDF(                 #HMAC-based Key Derivation Function (extract and expand secret information in a symmetric secure key with a fixed size).
-        algorithm=hashes.SHA256(),      #Using sha256 algorithm
-        length=16,                      #Choose the length of symmetric key (16 = 128bits)
-        salt=None,                      #Optional (helps to protect from reused key attacks)
-        info=b'ecies',                  #Optional (just to denote the purpose of the key)
-    ).derive(shared_key)
+    # 3. Symmetric key derivation: (needed to process "shared_key" to make it suitable for AES-128 = 16 bytes) Produces a clean and uniform key.
+    derived_key = HKDF(                 #HMAC-based Key Derivation Function (extract and expand secret information in a symmetric secure key with a fixed size). This is the constructor.
+        algorithm=hashes.SHA256(),      #Using sha256 algorithm.
+        length=16,                      #Choose the length of symmetric key (16 bytes = 128 bits).
+        salt=None,                      #Optional (helps to protect from reused key attacks).
+        info=b'ecies',                  #Optional (just to denote the purpose of the key).
+    ).derive(shared_key)                #This is what actually does all the calculations.
 
     # 4. AES-CBC
-    iv = os.urandom(16)
-    cipher = Cipher(algorithms.AES(derived_key), modes.CBC(iv))
-    encryptor = cipher.encryptor()
+    iv = os.urandom(16)                                             #This is the Initialization Vector (needed for the CBC (cypher block chaining that processes the message in 16 bits blocks)) 16 random bytes are generated, this value does not have to be secret, but it has to be unique for each cypher.
+    cipher = Cipher(algorithms.AES(derived_key), modes.CBC(iv))     #Then a cypher object is created (defining that will use AES, CBC mode (that cyphers each block depending on the previous), using the "derived_key" obtained before.
+    encryptor = cipher.encryptor()                                  #The cypher object is prepared, starts the algorithm with all the parameters.
 
-    padder = sym_padding.PKCS7(128).padder()
-    padded_data = padder.update(message) + padder.finalize()
-    ciphertext = encryptor.update(padded_data) + encryptor.finalize()
+    padder = sym_padding.PKCS7(128).padder()                            #AES needs that the message is multiple of 16 bytes, if not, padding is needed. Uses the PKCS7 standard, 128 indicates that the blocks will be of 128 bits = 16 bytes. Creates an object to add padding.
+    padded_data = padder.update(message) + padder.finalize()            #The padder object adds the padding bytes needed to the message.
+    ciphertext = encryptor.update(padded_data) + encryptor.finalize()   #The padded message is cyphered.
 
     # 5. Serialize the ephemeral public key
     ephemeral_public_bytes = ephemeral_public_key.public_bytes(
@@ -91,5 +91,5 @@ message = b"Honeypot"
 ephemeral_pub, iv, ct = ecies_encrypt(receiver_public_key, message)
 
 # Decypher
-missatge_desxifrat = ecies_decrypt(receiver_private_key, ephemeral_pub, iv, ct)
-print("Decyphered message:", missatge_desxifrat.decode())
+deciphered_message = ecies_decrypt(receiver_private_key, ephemeral_pub, iv, ct)
+print("Deciphered message:", deciphered_message.decode())
