@@ -25,7 +25,7 @@ def ecies_encrypt(receiver_public_key, message: bytes):
     ephemeral_private_key = ec.generate_private_key(ec.SECP192R1())
     ephemeral_public_key = ephemeral_private_key.public_key()
 
-    # 2. ECDH (Elliptic Curve Diffie-Hellman) method to generate a shared key between two participants (finding a shared point in the EC).
+    # 2. ECDH (Elliptic Curve Diffie-Hellman) method to generate a shared key between two participants (finding a shared point in the EC). [privA * pubB = privA * (privB * G) = privB * (privA * G) = privB * pubA]
     shared_key = ephemeral_private_key.exchange(ec.ECDH(), receiver_public_key) #It's a large binary string of bytes.
 
     # 3. Symmetric key derivation: (needed to process "shared_key" to make it suitable for AES-128 = 16 bytes) Produces a clean and uniform key.
@@ -39,33 +39,33 @@ def ecies_encrypt(receiver_public_key, message: bytes):
     # 4. AES-CBC
     iv = os.urandom(16)                                             #This is the Initialization Vector (needed for the CBC (cypher block chaining that processes the message in 16 bits blocks)) 16 random bytes are generated, this value does not have to be secret, but it has to be unique for each cypher.
     cipher = Cipher(algorithms.AES(derived_key), modes.CBC(iv))     #Then a cypher object is created (defining that will use AES, CBC mode (that cyphers each block depending on the previous), using the "derived_key" obtained before.
-    encryptor = cipher.encryptor()                                  #The cypher object is prepared, starts the algorithm with all the parameters.
+    encryptor = cipher.encryptor()                                  #The cypher object is prepared to encrypt, starts the algorithm with all the parameters.
 
     padder = sym_padding.PKCS7(128).padder()                            #AES needs that the message is multiple of 16 bytes, if not, padding is needed. Uses the PKCS7 standard, 128 indicates that the blocks will be of 128 bits = 16 bytes. Creates an object to add padding.
-    padded_data = padder.update(message) + padder.finalize()            #The padder object adds the padding bytes needed to the message.
+    padded_data = padder.update(message) + padder.finalize()            #The padder object adds the padding bytes needed to the message, PKCS7 adds N bytes with the value N.
     ciphertext = encryptor.update(padded_data) + encryptor.finalize()   #The padded message is cyphered.
 
-    # 5. Serialize the ephemeral public key
-    ephemeral_public_bytes = ephemeral_public_key.public_bytes(
-        encoding=serialization.Encoding.X962,
-        format=serialization.PublicFormat.UncompressedPoint
+    # 5. Serialize the ephemeral public key: Convert the ephemeral pubkey in a standard format.
+    ephemeral_public_bytes = ephemeral_public_key.public_bytes(     #Serialize into byte format.
+        encoding=serialization.Encoding.X962,                       #X962 is the standard for EC.
+        format=serialization.PublicFormat.UncompressedPoint         #Serialize as a point with both coordinates (x,y).
     )
 
     return ephemeral_public_bytes, iv, ciphertext
 
 
-# ----------- ECIES Decryption ----------
+# ----------- ECIES Decryption (Receiver)----------
 def ecies_decrypt(receiver_private_key, ephemeral_public_bytes, iv, ciphertext):
     # 1. Load ephemeral public key
-    ephemeral_public_key = ec.EllipticCurvePublicKey.from_encoded_point(
-        ec.SECP192R1(),
-        ephemeral_public_bytes
+    ephemeral_public_key = ec.EllipticCurvePublicKey.from_encoded_point(        #Reverts the ephemeral pubkey serialization done on the Encryption.
+        ec.SECP192R1(),                                                         #Indicate the EC used.
+        ephemeral_public_bytes                                                  #The key that we want to deserialize.
     )
 
-    # 2. ECDH
-    shared_key = receiver_private_key.exchange(ec.ECDH(), ephemeral_public_key)
+    # 2. ECDH (Elliptic Curve Diffie-Hellman) method to generate a shared key between two participants (finding a shared point in the EC), now we have the shared key between both parts.
+    shared_key = receiver_private_key.exchange(ec.ECDH(), ephemeral_public_key) #It's a large binary string of bytes.
 
-    # 3. Symmetric key derivation
+    # 3. Symmetric key derivation: exactly the same as in Encryption.
     derived_key = HKDF(
         algorithm=hashes.SHA256(),
         length=16,
@@ -74,18 +74,18 @@ def ecies_decrypt(receiver_private_key, ephemeral_public_bytes, iv, ciphertext):
     ).derive(shared_key)
 
     # 4. AES-CBC
-    cipher = Cipher(algorithms.AES(derived_key), modes.CBC(iv))
-    decryptor = cipher.decryptor()
-    padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+    cipher = Cipher(algorithms.AES(derived_key), modes.CBC(iv))              #A cypher object is created (defining that will use AES, CBC mode (that cyphers each block depending on the previous), using the "derived_key" obtained before.
+    decryptor = cipher.decryptor()                                           #The cypher object is prepared to decrypt, starts the algorithm with all the parameters.
+    padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()   #The cyphered message is now deciphered.
 
-    # 5. Unpad
-    unpadder = sym_padding.PKCS7(128).unpadder()
-    plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
+    # 5. Unpad: We needed to use padding to encrypt, so after decrypting, we need to unpad to get the original message.
+    unpadder = sym_padding.PKCS7(128).unpadder()                            #Creates an object to unpad.
+    plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()     #The unpadder object removes the padding bytes of the message, checks the value of the last byte to know how much needs to unpad.
     return plaintext
 
 
 # ----------- Usage example ----------
-message = b"Honeypot"
+message = b"Honeypot"       #Message as a byte string
 
 # Cypher
 ephemeral_pub, iv, ct = ecies_encrypt(receiver_public_key, message)
