@@ -1,4 +1,5 @@
 from coincurve import PrivateKey, PublicKey
+from bitcoinutils.keys import PublicKey as BitcoinPublicKey
 
 #This version is for testing the Schnorr key aggregation, but is vulnerable to rogue key attacks. As far as I am concerned, for the purpose of the honeypot, rogue key attacks don't affect us, but it is important to be aware of them.
 #The script of the protocol that will add all the pubkeys will need to ensure all pubkeys are valid and not repeated.
@@ -41,6 +42,7 @@ pub1 = priv1.public_key
 pub2 = priv2.public_key
 agg_point = PublicKey.combine_keys([pub1, pub2])
 
+
 # Test with a third key
 pub3 = priv3.public_key
 agg_point2 = PublicKey.combine_keys([pub1, pub2, pub3])
@@ -68,3 +70,10 @@ print("Agg from sec3 =", agg_secret_associative.public_key.format().hex())
 print("Match?       =", agg_point_associative.format() == agg_secret_associative.public_key.format())
 
 
+# Transform public keys from coincurve to bitcoinutils
+pub1hex = pub1.format().hex()
+print("Pub1 hex:", pub1hex)
+pub1btc = BitcoinPublicKey.from_hex(pub1hex)
+print("Pub1 btc:", pub1btc.to_hex())
+taprootpub = pub1btc.get_taproot_address()
+print("Taproot:", taprootpub.to_string())
