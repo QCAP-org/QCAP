@@ -1,6 +1,7 @@
 from coincurve import PrivateKey, PublicKey
 
-#This version is for testing the Schnorr key aggregation, but is vulnerable to rogue key attacks.
+#This version is for testing the Schnorr key aggregation, but is vulnerable to rogue key attacks. As far as I am concerned, for the purpose of the honeypot, rogue key attacks don't affect us, but it is important to be aware of them.
+#The script of the protocol that will add all the pubkeys will need to ensure all pubkeys are valid and not repeated.
 
 # Generate two private keys
 priv1 = PrivateKey()
@@ -10,6 +11,7 @@ priv3 = PrivateKey()
 
 print(priv1.secret.hex())
 print(priv2.secret.hex())
+
 
 print(priv3.secret.hex())
 
@@ -64,4 +66,5 @@ print("-------------------------Associative property---------------------------"
 print("P1 + P2 + P3 =", agg_point_associative.format().hex())
 print("Agg from sec3 =", agg_secret_associative.public_key.format().hex())
 print("Match?       =", agg_point_associative.format() == agg_secret_associative.public_key.format())
+
 
