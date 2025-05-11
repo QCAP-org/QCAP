@@ -42,4 +42,4 @@ There are two main failure points with different consequences:
 
 1· If all participants share dg they can move the funds of the honeypot, meaning that if just one person is honest, the protocol works.
 
-2· If one participant encrypts anything that is not dg, the protocol fails because one dg is missing and the funds cannot be reedemed. This can be solved using ZeroKnowledge Proofs.
+2· If one participant encrypts anything that is not dg, the protocol fails because one dg is missing and the funds cannot be redeemed. This can be solved using ZeroKnowledge Proofs.
