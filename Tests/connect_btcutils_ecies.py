@@ -11,8 +11,10 @@ data_bytes = bytes.fromhex(data_hex)
 first_hash = hashlib.sha256(data_bytes).digest()
 
 # Second hash SHA-256
-double_hash = hashlib.sha256(first_hash).digest()
+double_hash = hashlib.sha256(first_hash).digest() #Not needed with one is enough.
 
 print("Double SHA-256:", double_hash.hex())  # Returns 32 bytes that need to be processed to generate a valid public key on secp192r1
 
 # The idea is to truncate the 32 bytes to 24 bytes and then use the first 24 bytes as the x coordinate of the public key
+# Try then to do 1000 executions to see how many unvalid x's are generated.
+
