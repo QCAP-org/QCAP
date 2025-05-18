@@ -1,7 +1,7 @@
 # BHQC
 Bitcoin Honeypot for Quantum Computers
 
-Bitcoinutils library is used.
+Bitcoinutils, cryptography and secrets libraries are used.
 
 
 ## Flux of the code
