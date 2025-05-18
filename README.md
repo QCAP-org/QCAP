@@ -78,11 +78,34 @@ This script simulates the quantum attack scenario.
 > Uses `cryptography` for ECIES decryption and `coincurve`/`bitcoinutils` for aggregation and wallet import formatting.
 
 
-## Important considerations
-There are two main failure points with different consequences:
+## Limitations and Future Improvements
 
-1· If all participants share dg they can move the funds of the honeypot, meaning that if just one person is honest, the protocol works.
+While this protocol demonstrates a novel approach to creating a Bitcoin honeypot for Quantum Computers, there are several limitations and areas for future improvement.
 
-2· If one participant encrypts anything that is not dg, the protocol fails because one dg is missing and the funds cannot be redeemed. This can be solved using ZeroKnowledge Proofs.
-plus encourage sending dust there.
+### Protocol Integrity and Verification
 
+One of the strengths of the protocol is that key aggregation increases the honeypot’s security: the more participants involved, the more resistant it becomes. In fact, as long as at least one participant is fully honest, any transaction spending the honeypot’s funds would imply that a quantum computer has been used.
+
+However, the protocol has a critical single point of failure. Any dishonest or careless participant can encrypt arbitrary data using the `ReducedSecurityKeyCipher` script instead of their actual private key (`db`). This would make the honeypot permanently inaccessible—or at least inaccessible using the intended reconstruction process—thereby breaking its intended guarantees.
+
+**Future improvement**: Integrate zero-knowledge proofs to verify that each encrypted value is indeed the correct `db`, without revealing it. This would ensure that only valid data is accepted without compromising private information.
+
+### Decentralization and Coordination
+
+Currently, the protocol assumes cooperation between participants through external means. The key aggregation and address generation steps are not fully trustless and involve some centralization.
+
+**Future improvement**: Develop or integrate a decentralized coordination system that allows participants to securely exchange information and collaboratively generate the honeypot without relying on any centralized authority or external coordination channels.
+
+### Data Hosting
+
+At present, honeypot data and documentation are published on a centralized webpage (e.g., GitHub Pages), with the link included in an `OP_RETURN` output of the funding transaction. This creates dependency on a third-party hosting provider.
+
+**Future improvement**: Use decentralized storage systems such as IPFS or Zeronet to publish and store this data. Alternatively, although technically complex, an on-chain solution could be explored to ensure full permanence and censorship resistance.
+
+### Mainnet Deployment
+
+Once these issues are addressed, the protocol could be deployed on Bitcoin mainnet as a real honeypot. It could then be proposed to the community as a public dust donation address or as a long-term quantum security experiment.
+
+---
+
+This project serves as a proof-of-concept, and opens up new possibilities for exploring quantum-aware Bitcoin constructs. Contributions and suggestions for improvement are welcome.
