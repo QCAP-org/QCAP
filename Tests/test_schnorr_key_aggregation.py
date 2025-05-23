@@ -138,3 +138,45 @@ total_time = time.time() - start_time
 print(f"\nThree-key test completed in {total_time:.2f} seconds")
 print(f"Total success: {success_count}/1000 ({success_count/10:.2f}%)")
 print(f"Average time per iteration: {total_time/1000:.4f} seconds")
+
+
+
+#---------------------------
+#loop aggregating 1000 key pairs and doing a signature
+
+#--------------------------------------
+
+
+#Starting 1000 key aggregation tests...
+#Completed 100 iterations. Success rate: 100.00%
+#Completed 200 iterations. Success rate: 100.00%
+#Completed 300 iterations. Success rate: 100.00%
+#Completed 400 iterations. Success rate: 100.00%
+#Completed 500 iterations. Success rate: 100.00%
+#Completed 600 iterations. Success rate: 100.00%
+#Completed 700 iterations. Success rate: 100.00%
+#Completed 800 iterations. Success rate: 100.00%
+#Completed 900 iterations. Success rate: 100.00%
+#Completed 1000 iterations. Success rate: 100.00%
+
+#Test completed in 75.08 seconds
+#Total success: 1000/1000 (100.00%)
+#Average time per iteration: 0.0751 seconds
+#-------------------------
+#-------------------------
+
+#Starting 1000 three-key aggregation tests...
+#Completed 100 iterations. Success rate: 100.00%
+#Completed 200 iterations. Success rate: 100.00%
+#Completed 300 iterations. Success rate: 100.00%
+#Completed 400 iterations. Success rate: 100.00%
+#Completed 500 iterations. Success rate: 100.00%
+#Completed 600 iterations. Success rate: 100.00%
+#Completed 700 iterations. Success rate: 100.00%
+#Completed 800 iterations. Success rate: 100.00%
+#Completed 900 iterations. Success rate: 100.00%
+#Completed 1000 iterations. Success rate: 100.00%
+
+#Three-key test completed in 74.71 seconds
+#Total success: 1000/1000 (100.00%)
+#Average time per iteration: 0.0747 seconds
