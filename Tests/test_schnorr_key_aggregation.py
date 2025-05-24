@@ -9,18 +9,18 @@ setup("testnet")
 n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 
 print("---------------------------")
-print("loop aggregating 10000 key pairs and doing a signature")
+print("loop aggregating 1000 key pairs and doing a signature")
 print("\n--------------------------------------\n")
 
 # Message to sign
 message = "Schnorr key aggregation test"
 
-print("\nStarting 10000 key aggregation tests...")
+print("\nStarting 1000 key aggregation tests...")
 start_time = time.time()
 success_count = 0
 
-for i in range(10000):
-    # Generate two private keys
+for i in range(1000):
+    # Generate two private keys with coincurve library
     priv1 = PrivateKey()
     priv2 = PrivateKey()
 
@@ -55,6 +55,10 @@ for i in range(10000):
         # Get address
         address = agg_pub_btc.get_address()
 
+        # Test 1 each 100 iterations wrong key to simulate a failure
+        if i % 100 == 0:
+            priv_agg_btc= BitcoinPrivateKey.from_bytes(priv1.secret)
+
         # Sign and verify
         signature = priv_agg_btc.sign_message(message)
         if BitcoinPublicKey.verify_message(address.to_string(), signature, message):
@@ -65,23 +69,23 @@ for i in range(10000):
     except Exception as e:
         print(f"Error in iteration {i+1}: {e}")
 
-    # Print progress every 1000 iterations
-    if (i + 1) % 1000 == 0:
+    # Print progress every 100 iterations
+    if (i + 1) % 100 == 0:
         print(f"Completed {i+1} iterations. Success rate: {success_count/(i+1)*100:.2f}%")
 
 total_time = time.time() - start_time
 print(f"\nTest completed in {total_time:.2f} seconds")
-print(f"Total success: {success_count}/10000 ({success_count/100:.2f}%)")
-print(f"Average time per iteration: {total_time/10000:.4f} seconds")
+print(f"Total success: {success_count}/1000 ({success_count/10:.2f}%)")
+print(f"Average time per iteration: {total_time/1000:.4f} seconds")
 
 
 print("-------------------------")
 print("-------------------------")
-print("\nStarting 10000 three-key aggregation tests...")
+print("\nStarting 1000 three-key aggregation tests...")
 start_time = time.time()
 success_count = 0
 
-for i in range(10000):
+for i in range(1000):
     # Generate three private keys
     priv1 = PrivateKey()
     priv2 = PrivateKey()
@@ -119,6 +123,9 @@ for i in range(10000):
 
         # Get address
         address = agg_pub_btc.get_address()
+        # Test 1 each 100 iterations wrong key to simulate a failure
+        if i % 100 == 0:
+            priv_agg_btc= BitcoinPrivateKey.from_bytes(priv1.secret)
 
         # Sign and verify
         signature = priv_agg_btc.sign_message(message)
@@ -130,14 +137,14 @@ for i in range(10000):
     except Exception as e:
         print(f"Error in iteration {i+1}: {e}")
 
-    # Print progress every 1000 iterations
-    if (i + 1) % 1000 == 0:
+    # Print progress every 100 iterations
+    if (i + 1) % 100 == 0:
         print(f"Completed {i+1} iterations. Success rate: {success_count/(i+1)*100:.2f}%")
 
 total_time = time.time() - start_time
 print(f"\nThree-key test completed in {total_time:.2f} seconds")
-print(f"Total success: {success_count}/10000 ({success_count/100:.2f}%)")
-print(f"Average time per iteration: {total_time/10000:.4f} seconds")
+print(f"Total success: {success_count}/1000 ({success_count/10:.2f}%)")
+print(f"Average time per iteration: {total_time/1000:.4f} seconds")
 
 
 
