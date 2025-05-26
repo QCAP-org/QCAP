@@ -24,6 +24,18 @@ public_key_bytes = receiver_public_key.public_bytes(
 )
 print("Public key:", public_key_bytes.hex()) #Compressed pubkey that is 25 bytes long
 
+# LOADED KEY FROM CONNNECT BTCUTILS ECIES
+#compressed_public_key_hex = "02fbff07a5468c10147f2a20d1a9ecf80fe3a30c1bdf7641b0"
+#compressed_public_key_bytes = bytes.fromhex(compressed_public_key_hex)
+
+# Create public key object from the bytes
+#receiver_public_key = ec.EllipticCurvePublicKey.from_encoded_point(
+#    ec.SECP192R1(),
+#    compressed_public_key_bytes
+#)
+
+
+
 # ----------- ECIES Encryption (Sender) ----------
 def ecies_encrypt(receiver_public_key, message: bytes):
     # 1. Ephemeral key: It's a one use key that gives forward secrecy (each message has a different key). The public key is the one that will be sent to the receiver of the message.
@@ -94,6 +106,8 @@ message = b"Honeypot"       #Message as a byte string
 
 # Cypher
 ephemeral_pub, iv, ct = ecies_encrypt(receiver_public_key, message)
+
+#print(ct.hex())
 
 # Decypher
 deciphered_message = ecies_decrypt(receiver_private_key, ephemeral_pub, iv, ct)
