@@ -4,6 +4,8 @@ from bitcoinutils.keys import PrivateKey as BitcoinPrivateKey
 from bitcoinutils.setup import setup
 import time
 
+# In this test set, we will generate and aggregate 1000 key pairs and do a signature test to check the correctness of the aggregation in a large scale.
+
 setup("testnet")
 # Define the curve order
 n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
@@ -80,6 +82,9 @@ print(f"Total success: {success_count}/1000 ({success_count/10:.2f}%)")
 print(f"Average time per iteration: {total_time/1000:.4f} seconds")
 
 
+# In this test set, we will generate and aggregate 1000 three-key sets and do a signature test to check the correctness of the aggregation in a large scale.
+# It's the same as the previous test, but with three keys instead of two.
+
 print("-------------------------")
 print("-------------------------")
 print("\nStarting 1000 three-key aggregation tests...")
@@ -151,6 +156,8 @@ print(f"Average time per iteration: {total_time/1000:.4f} seconds")
 
 
 
+# This is the result of the test set, which aggregates 1000 key pairs and does a signature test to check the correctness of the aggregation in a large scale.
+# As you can see, the success rate is 100% for all 1000 iterations.
 #---------------------------
 #loop aggregating 1000 key pairs and doing a signature
 
@@ -175,6 +182,9 @@ print(f"Average time per iteration: {total_time/1000:.4f} seconds")
 #-------------------------
 #-------------------------
 
+
+#This is the result of the test set, which aggregates 1000 three-key sets and does a signature test to check the correctness of the aggregation in a large scale.
+# As you can see, the success rate is 100% for all 1000 iterations.
 #Starting 1000 three-key aggregation tests...
 #Completed 100 iterations. Success rate: 100.00%
 #Completed 200 iterations. Success rate: 100.00%
@@ -193,6 +203,8 @@ print(f"Average time per iteration: {total_time/1000:.4f} seconds")
 
 
 
+# This is the result of a second test, using the same code but aggregating 10000 key pairs and doing a signature test to check the correctness of the aggregation in a large scale.
+# As happened with the previous test, the success rate is 100% for all 10000 iterations.
 #---------------------------
 #loop aggregating 10000 key pairs and doing a signature
 
@@ -217,6 +229,8 @@ print(f"Average time per iteration: {total_time/1000:.4f} seconds")
 #-------------------------
 #-------------------------
 
+# This is the result of a second test, using the same code but aggregating 10000 three-key sets and doing a signature test to check the correctness of the aggregation in a large scale.
+# As happened with the previous test, the success rate is 100% for all 10000 iterations.
 #Starting 10000 three-key aggregation tests...
 #Completed 1000 iterations. Success rate: 100.00%
 #Completed 2000 iterations. Success rate: 100.00%
