@@ -106,3 +106,9 @@ print("\nPrivate key WIF:", privagg.to_wif(compressed=True))
 pub1_bytes = bytes.fromhex(pub1btc.to_hex())
 pub1_coincurve = PublicKey(pub1_bytes)
 print("Pub1 coincurve:", pub1_coincurve.format().hex())
+
+# Check if it works from a list of public keys
+list = [pub1, pub2, pub3]
+print("List of public keys:", [p.format().hex() for p in list])
+agg_point_list = PublicKey.combine_keys(list)
+print("agg_point_list coincurve:", agg_point_list.format().hex())
