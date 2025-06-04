@@ -103,5 +103,6 @@ privagg = BitcoinPrivateKey.from_bytes(agg_secret2.secret)
 print("\nPrivate key WIF:", privagg.to_wif(compressed=True))
 
 # Bitcoinutils publickey to coincurve public key
-pub1_utils = BitcoinPublicKey.from_hex(pub1btc.to_hex())
-print("Pub1 utils to coincurve:", pub1_utils.to_hex())
+pub1_bytes = bytes.fromhex(pub1btc.to_hex())
+pub1_coincurve = PublicKey(pub1_bytes)
+print("Pub1 coincurve:", pub1_coincurve.format().hex())
