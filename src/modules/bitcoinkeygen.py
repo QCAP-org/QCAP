@@ -2,7 +2,7 @@ import os
 from bitcoinutils.setup import setup
 from bitcoinutils.keys import PrivateKey
 
-KEYS_DIR = "../../keys/participants"
+KEYS_DIR = "../../keys/participant"
 
 def bitcoinkeygen(seed):
 
