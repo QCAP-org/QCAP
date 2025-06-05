@@ -112,3 +112,14 @@ list = [pub1, pub2, pub3]
 print("List of public keys:", [p.format().hex() for p in list])
 agg_point_list = PublicKey.combine_keys(list)
 print("agg_point_list coincurve:", agg_point_list.format().hex())
+
+# TEST
+pubkey_bytes1 = bytes.fromhex('029df1aba3c7c47d9b7ad2d2e946bd700642c4416a4495eb6533bec96d5fe9a4f0')
+pubkey_bytes2 = bytes.fromhex('02b873fb59649ddeeda542d2935d4cefe1448c091229aba23f2134b0a6ffdc4ef6')
+pubkey_bytes3 = bytes.fromhex('02a084c4df64e217d9aa91672cf98a0b865f890b685d2ddc9bceeb05cb30d9a7be')
+pubkey_cc = PublicKey(pubkey_bytes1)
+pubkey_cc2 = PublicKey(pubkey_bytes2)
+pubkey_cc3 = PublicKey(pubkey_bytes3)
+pubkeylist = [pubkey_cc, pubkey_cc2, pubkey_cc3]
+agg_point_test = PublicKey.combine_keys(pubkeylist)
+print("agg_point_test coincurve:", agg_point_test.format().hex())
