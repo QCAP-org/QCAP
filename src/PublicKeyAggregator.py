@@ -6,8 +6,8 @@ from tinyec.ec import Point
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import serialization
 
-PUBKEY_DIR = "../keys/coordinator/key_aggregation"
-OUTPUTS_DIR = "../keys/coordinator/outputs"
+PUBKEY_DIR = "../outputs/coordinator/key_agg_input"
+OUTPUTS_DIR = "../outputs/coordinator/key_agg_output"
 
 def load_public_keys(pubkey_dir):
     # We iterate through all public key files in the specified directory and create a list of PublicKey objects.

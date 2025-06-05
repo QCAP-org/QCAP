@@ -4,7 +4,7 @@ import secrets
 from bitcoinutils.setup import setup
 from bitcoinutils.keys import PrivateKey
 
-KEYS_DIR = "../keys/participant"
+KEYS_DIR = "../outputs/participant/keys"
 
 def seedgen():
     #print("Generating random 256 bits seed")
