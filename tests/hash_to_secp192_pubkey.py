@@ -24,7 +24,7 @@ data_bytes = bytes.fromhex(data_hex) # Convert hex to bytes
 hash_value = hashlib.sha256(data_bytes).digest() # Hash the public key to get a 32-byte hash, tested with https://emn178.github.io/online-tools/sha256.html
 print("Initial SHA-256:", hash_value.hex())
 
-# Get curve parameters (a, b and p) for
+# Get curve parameters (a, b and p) for secp192r1
 a = curve.a
 b = curve.b
 p = curve.field.p # secp192r1 prime field size
