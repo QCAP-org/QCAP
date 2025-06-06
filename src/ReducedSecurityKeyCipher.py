@@ -120,9 +120,7 @@ def agg_key_file_check():
         return secp192r1_public_key.hex() == secp192_pubkey
     except Exception as e:
         print(f"Error creating point: {e}")
-
-
-
+        return False
 
 
 def main():
