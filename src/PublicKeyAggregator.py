@@ -110,12 +110,44 @@ def serialize_point(point):
     #print("Compressed public key:", compressed_bytes.hex())
     return compressed_bytes
 
+def is_point_at_infinity(pubkey):
+    # Checks if the public key bytes are all zeros (invalid key)
+    return pubkey.format() == b'\x00' * len(pubkey.format())
+
+def is_generator_point(pubkey):
+    # secp256k1 generator point (compressed)
+    generator_bytes = bytes.fromhex(
+        "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+    )
+    generator = PublicKey(generator_bytes)
+    return pubkey.format() == generator.format()
+
 def main():
     pubkeylist = load_public_keys(PUBKEY_DIR)
     #print("List of public keys:", [p.format().hex() for p in pubkeylist])
 
     agg_point = aggregate_public_keys(pubkeylist)
     #print("Aggregated public key:", agg_point.format().hex())
+
+    #from coincurve import PrivateKey
+    #priv_key = PrivateKey(b'\x00' * 31 + b'\x01')
+    #pub_key = priv_key.public_key
+    #agg_point = pub_key
+
+    #from coincurve import PrivateKey
+    #priv_key = PrivateKey(b'\x00' * 31 + b'\x00')
+    #pub_key = priv_key.public_key
+    #agg_point = pub_key
+
+    if is_point_at_infinity(agg_point):
+        print("Error!!! Aggregated public key is point at infinity (private key = 0).")
+        return
+    elif is_generator_point(agg_point):
+        print("Error!!! Aggregated public key is generator (private key = 1).")
+        return
+    else:
+        print("Aggregated public key is valid.")
+
 
     hash_value = hash_public_key(agg_point)
 
