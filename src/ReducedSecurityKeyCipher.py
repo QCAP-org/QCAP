@@ -153,6 +153,7 @@ def main():
         print("Aggregated key file is invalid, aborting encryption.")
         return
 
+    # Transform the public key from hex to bytes to the EC public key object
     receiver_public_key_bytes = bytes.fromhex(receiver_public_key_hex)
     receiver_public_key = ec.EllipticCurvePublicKey.from_encoded_point(
         ec.SECP192R1(),
@@ -176,6 +177,7 @@ def main():
     print(iv.hex())
     print(ephemeral_pub.hex())
 
+    # Save the output to a file with a unique suffix, same as the public key file
     unique_suffix = get_unique_suffix()
     out_path = os.path.join(OUTPUTS_DIR, f"ecies_output_{unique_suffix}")
     with open(out_path, "w") as out_file:
