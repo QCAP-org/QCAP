@@ -73,7 +73,7 @@ def create_op_return_tx(network, taproot_address):
     print(f"\nRaw signed transaction ready to preview and broadcast here: {explorer_url}" + tx.serialize())
 
 
-def main():
+def main(ask_create_op_return=True):
     # Initialize Bitcoin network
     while True:
         net_choice = input("Select network: (m)ainnet or (t)estnet?: ").strip().lower()
@@ -130,16 +130,17 @@ def main():
 
 
     #OP_RETURN tx for funding honeypot give the coordinator the option to generate a tx with op_ret
-    while True:
-        response = input("Do you want to generate a funding transaction to the honeypot with OP_RETURN data? (yes/no): ")
-        if response.lower() == "yes":
-            create_op_return_tx(network, taproot_address)
-            break
-        elif response.lower() == "no":
-            print("Exiting...")
-            break
-        else:
-            print("Invalid input. Please enter 'yes' or 'no'.")
+    if ask_create_op_return:
+        while True:
+            response = input("Do you want to generate a funding transaction to the honeypot with OP_RETURN data? (yes/no): ")
+            if response.lower() == "yes":
+                create_op_return_tx(network, taproot_address)
+                break
+            elif response.lower() == "no":
+                print("Exiting...")
+                break
+            else:
+                print("Invalid input. Please enter 'yes' or 'no'.")
 
     return network
 
