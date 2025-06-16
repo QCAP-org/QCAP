@@ -4,7 +4,7 @@ from bitcoinutils.keys import PrivateKey as BitcoinPrivateKey
 from bitcoinutils.setup import setup
 import time
 
-# This test is the same as test_schnorr_key_aggregation.py but with a final aggregation of all keys generated in the previous tests to test the correctness of the aggregation process when a large number of keys are aggregated together.
+# This test is the same as test_key_aggregation.py but with a final aggregation of all keys generated in the previous tests to test the correctness of the aggregation process when a large number of keys are aggregated together.
 
 setup("testnet")
 # Define the curve order
