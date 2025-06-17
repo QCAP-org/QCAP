@@ -28,14 +28,14 @@ def check_data_correctness(introduced_taproot_address):
         sys.exit(0)
 
 def get_secp192r1_private_key():
-    txt_files = glob.glob('../outputs/stealer/*.txt')
+    txt_files = glob.glob('../outputs/attacker/*.txt')
     for filename in txt_files:
         with open(filename, 'r') as f:
             content = f.read()
             if content.startswith('-----BEGIN EC PRIVATE KEY-----'):
                 print(f"Private key found in {filename}.")
                 return content
-    print("No EC private key found in ../outputs/stealer/.")
+    print("No EC private key found in ../outputs/attacker/.")
     sys.exit(0)
 
 def check_private_key(secp192r1_privatekey_raw, secp192r1_pub):
