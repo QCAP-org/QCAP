@@ -149,14 +149,14 @@ def create_wallet_descriptor(honeypot_wif):
         '}]\''
     ]
 
-    with open('../outputs/stealer/bitcoin_core_import.txt', 'w') as f:
+    with open('../outputs/attacker/bitcoin_core_import.txt', 'w') as f:
         for line in lines:
             f.write(line + '\n')
 
-    print("Wallet descriptor created and saved in ../outputs/stealer/bitcoin_core_import.txt")
+    print("Wallet descriptor created and saved in ../outputs/attacker/bitcoin_core_import.txt")
 
     print("Content of the file:")
-    with open('../outputs/stealer/bitcoin_core_import.txt', 'r') as f:
+    with open('../outputs/attacker/bitcoin_core_import.txt', 'r') as f:
         content = f.read()
         print(content)
 
@@ -181,7 +181,7 @@ def main():
 
     print("Strarting to decrypt ECIES outputs...")
     while True:
-        secp192r1_private_response = input(f"Make sure you have the secp192r1 private key corresponding to public key {secp192r1_pub} in PEM format (SEC1, unencrypted) into ../outputs/stealer/*.txt Do you want to continue? (yes/no): ")
+        secp192r1_private_response = input(f"Make sure you have the secp192r1 private key corresponding to public key {secp192r1_pub} in PEM format (SEC1, unencrypted) into ../outputs/attacker/*.txt Do you want to continue? (yes/no): ")
         if secp192r1_private_response.lower() == "yes":
             secp192r1_privatekey_raw = get_secp192r1_private_key()
             break
