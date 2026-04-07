@@ -182,7 +182,7 @@ def main():
     private_key_range = Secp192r1.field.n >> over_flow_bits
     #       Proof generation for discrete logarithm equality over two curves 
     dleqag_inst = DLEQAG(b_x, b_f, b_c, number_of_chunks, private_key_range, Secp256k1, Secp192r1)
-    dleqag_proof, SNARK_input, bulletproof_input = dleqag_inst.proof_gen(private_key.private_numbers().private_value)
+    dleqag_proof, bulletproof_input = dleqag_inst.proof_gen(private_key.private_numbers().private_value)
     #       Proof generation for discrete logarithm equality over Bitcoin  
     dleq_secp256k1_inst = DLEQ(Secp256k1)
     dleq_proof_secp256k1 = dleq_secp256k1_inst.proof_gen(dleqag_proof["r_HS"], private_key.private_numbers().private_value)
