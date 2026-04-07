@@ -104,13 +104,7 @@ class DLEQAG:
             "private_key_chunks": secret_chunks, 
             "random_chunks": r_HS
         }
-        # zkSNARK proof parameters 
-        snark_input = {
-            "pub_key_point": points_to_str([P_HS.x, P_HS.y]),
-            "private_key": str(secret), 
-            "private_key_range": str(self.secret_range)
-        }
-        return proof, snark_input, bulletproof_input
+        return proof, bulletproof_input
 
     def proof_verification(self, proof):
         s_192 = proof["s_192"]
