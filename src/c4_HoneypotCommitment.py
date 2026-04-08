@@ -1,6 +1,7 @@
 import os
 import hashlib
 import json
+from modules.tools import compute_cid, is_hex
 from bitcoinutils.setup import setup
 from bitcoinutils.keys import PublicKey
 from bitcoinutils.utils import tweak_taproot_pubkey, tagged_hash
@@ -68,11 +69,12 @@ def tweak_public_key(tweak, agg_key_hex):
 
     return taproot_address
 
-def create_op_return_tx(network, taproot_address):
-    # always remember to setup the network
-    setup(network)
+# This function retrieves the information necessary to create 
+#   the transaction in a testnet/mainnet network from the user
+def get_tx_info() -> tuple[PrivateKey, str, int, float, float, any]:
     while True:
-        response = input("Creating the honeypot funding transaction, please enter your private key WIF: ")
+        response = input("Creating the honeypot funding transaction, " \
+                    "please enter your private key WIF: ")
         try:
             priv = PrivateKey(response)
             print("Private key:", priv.to_wif())
@@ -86,54 +88,79 @@ def create_op_return_tx(network, taproot_address):
     print("From address:", from_address.to_string())
 
     txid = input("Enter the txid of your UTXO: ").strip()
+    if not is_hex(txid):
+        raise ValueError("The txid should be in hex format")
     vout = int(input("Enter the vout of your UTXO (as integer): ").strip())
     amount_btc = float(input("Enter the amount of the input UTXO (in BTC): ").strip())
+    pay_amount_btc = float(input("Enter the payment output amount (in BTC) "
+                        "(!!!REMINDER: the rest will be the fee!!!): ").strip())
+    return priv, txid, vout, amount_btc, pay_amount_btc, from_address
+
+def generate_dummy_regtest_data():
+    priv = PrivateKey()
+    pub = priv.get_public_key()
+    from_address = pub.get_taproot_address()
+
+    txid = os.urandom(32).hex()
+    vout = 0
+    amount_btc = 1.0
+    pay_amount_btc = 0.999
+
+    return priv, txid, vout, amount_btc, pay_amount_btc, from_address
+
+def create_op_return_tx(network, taproot_address):
+    # always remember to setup the network
+    setup(network)
+    if network in ("testnet", "mainnet") :
+        priv, txid, vout, amount_btc, pay_amount_btc, from_address = get_tx_info()
+    else :
+        priv, txid, vout, amount_btc, pay_amount_btc, from_address = generate_dummy_regtest_data()
+
     amounts = [to_satoshis(amount_btc)]
-
     utxos_script_pubkeys = [from_address.to_script_pub_key()]
-
     to_address = taproot_address
-
     txin = TxInput(txid, vout)
+    payment_output = TxOutput(to_satoshis(pay_amount_btc), to_address.to_script_pub_key())
 
-    plain_text = input("Enter the OP_RETURN message (IPFS CID): ").strip()
-    op_return_script = ["OP_RETURN", plain_text.encode('utf-8').hex()]
+    ipfs_cid = compute_cid('../outputs/IPFS.json')
+    op_return_script = ["OP_RETURN", ipfs_cid.encode('utf-8').hex()]
     op_return_script = Script(op_return_script)
     op_return_output = TxOutput(0, op_return_script)
-
-    pay_amount_btc = float(input("Enter the payment output amount (in BTC) (!!!REMINDER: the rest will be the fee!!!): ").strip())
-    payment_output = TxOutput(to_satoshis(pay_amount_btc), to_address.to_script_pub_key())
 
     tx = Transaction([txin], [op_return_output, payment_output], has_segwit=True)
 
     sig = priv.sign_taproot_input(tx, 0, utxos_script_pubkeys, amounts)
     tx.witnesses.append(TxWitnessInput([sig]))
 
+    explorer = ""
     if network == "testnet":
-        explorer_url = "https://mempool.space/testnet4/tx/preview#tx="
-    else:
-        explorer_url = "https://mempool.space/tx/preview#tx="
+        explorer = "https://mempool.space/testnet4/tx/preview#tx="
+    elif network == "mainnet":
+        explorer = "https://mempool.space/tx/preview#tx="
+    elif network == "regtest":
+        explorer = "local network "
 
-    print(f"\nRaw signed transaction ready to preview and broadcast here: {explorer_url}" + tx.serialize())
-    print(f"\nCheck your IPFS upload here: https://ipfs.io/ipfs/" + plain_text)
+    print(f"\nRaw signed transaction ready to preview and broadcast on: {explorer}" + tx.serialize())
+    print(f"\nCheck your IPFS upload here: https://ipfs.io/ipfs/" + ipfs_cid)
 
 
 if __name__ == '__main__':
     # Initialize Bitcoin network
     while True:
-        net_choice = input("Select network: (m)ainnet or (t)estnet?: ").strip().lower()
+        net_choice = input("Select network: (m)ainnet, (t)estnet, or regtest(r)?: ").strip().lower()
         if net_choice == "t":
             network = "testnet"
             break
-        elif net_choice == "m":
+        if net_choice == "m":
             network = "mainnet"
             break
-        else:
-            print("Invalid input. Please enter 't' for testnet or 'm' for mainnet.")
+        if net_choice == "r":
+            network = "regtest"
+            break
+        print("Invalid input. Please enter 't' for testnet or 'm' for mainnet.")
 
     setup(network)
     agg_key_hex = load_internal_pubkey_hex_from_ipfs()
     digest_bytes, digest_hex = compute_sha256_of_ipfs_file()
     taproot_address = tweak_public_key(digest_bytes, agg_key_hex)
     create_op_return_tx(network, taproot_address)
-
