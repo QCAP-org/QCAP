@@ -5,8 +5,13 @@ from bitcoinutils.keys import PrivateKey as BitcoinPrivateKey
 from bitcoinutils.utils import tweak_taproot_privkey
 from modules.descriptor import descsum_create
 from modules.curves import Secp256k1
+from cid import make_cid
+import hashlib
 import os 
 import json
+import base58
+import requests
+
 
 def check_private_key(secp192r1_privatekey_raw, secp192r1_pub):
     secp192r1_processed = serialization.load_pem_private_key(
@@ -114,3 +119,24 @@ def load_setup(setup_dir):
         setup_data = json.load(setup_file)
     
     return setup_data.get("max_num_participants"), setup_data.get("number_of_bits_of_secret_chunks"), setup_data.get("failure_rate"), setup_data.get("number_of_bits_of_challenge"), setup_data.get("number_of_chunks")
+
+def compute_cid(ipfs_dir):
+    with open(ipfs_dir, "rb") as f:
+        data = f.read()
+
+    # SHA-256 hash (IPFS default)
+    digest = hashlib.sha256(data).digest()
+
+    # Multihash format (sha2-256 = 0x12, length = 32)
+    multihash_bytes = b"\x12" + b"\x20" + digest
+
+    # CIDv0 (dag-pb)
+    cid = make_cid(base58.b58encode(multihash_bytes).decode())
+    return str(cid)
+
+def is_hex(s: str) -> bool:
+    try:
+        int(s, 16)
+        return True
+    except ValueError:
+        return False
