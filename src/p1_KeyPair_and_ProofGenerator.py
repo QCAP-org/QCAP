@@ -117,7 +117,7 @@ def load_private_key(keys_dir):
     priv_key_filename = files[0]
     priv_key_path = os.path.join(keys_dir, priv_key_filename)
     # Extract network from filename
-    match = re.search(r'_(mainnet|testnet)_DO_NOT_SHARE\.txt$', priv_key_filename)
+    match = re.search(r'_(mainnet|testnet|regtest)_DO_NOT_SHARE\.txt$', priv_key_filename)
     if not match:
         raise ValueError(f"Network not found in private key filename: {priv_key_filename}")
     network = match.group(1)
@@ -152,15 +152,17 @@ def bulletproof_generation(input, number_of_chunks, b_x, over_flow_bits):
 def generate_private_key(max_number_of_participants):
     # Initialize Bitcoin network
     while True:
-        net_choice = input("Select network: (m)ainnet or (t)estnet?: ").strip().lower()
+        net_choice = input("Select network: (m)ainnet, (t)estnet, or regtest(r)?: ").strip().lower()
         if net_choice == "t":
             network = "testnet"
             break
-        elif net_choice == "m":
+        if net_choice == "m":
             network = "mainnet"
             break
-        else:
-            print("Invalid input. Please enter 't' for testnet or 'm' for mainnet.")
+        if net_choice == "r":
+            network = "regtest"
+            break
+        print("Invalid input. Please enter 't' for testnet or 'm' for mainnet.")
     
     print("Generating your private key and saving into .txt files...\n")
     # Generation of seed

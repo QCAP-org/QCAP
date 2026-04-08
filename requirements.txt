@@ -2,3 +2,4 @@ cryptography
 tinyec
 bitcoin-utils
 coincurve
+py-cid
