@@ -36,20 +36,37 @@ Here we will explain how the naming here in this repo matches the paper. ( do th
 ## Implementation Details 
 
 - **Languages/Libraries**: 
-  - Python: `bitcoinutils`, `coincurve`, `cryptography`, `tinyec`, `secrets`, `hashlib`
+  - Python: `bitcoinutils`, `coincurve`, `cryptography`, `tinyec`, `secrets`, `hashlib`, `py-cid`
   - Javascript: `secp256k1`, `bulletproof-js`
 - **Directory Structure**:
-  - `outputs/participant/keys`: Participant key pairs
-  - `outputs/participant/ecies_output`: Encrypted keys
-  - `outputs/coordinator/key_agg_input`: Public keys for aggregation
-  - `outputs/coordinator/key_agg_output`: Aggregation results
-  - `outputs/coordinator/honeypot_commitment`: Commitment data
-  - `outputs/coordinator/honeypot_address.txt`: Final address
-  - `outputs/attacker/bitcoin_core_import.txt`: Wallet descriptor
+  - `outputs/participant/participant_#id/keys`: Participant key pairs
+  - `outputs/participant/participant_#id/proofs/proof_#publickey.json`: DLEQ and DLEQAG proofs for the keypairs on `secp192r1` and `secp256k1`
+  - `outputs/participant/participant_#id/proofs/range_proof_#chunk.json`: Range proofs for each chunk of the commitments.
+  - `outputs/IPFS.json`: This file contains all the protocol’s public information, including proofs and public key pairs.
 
 ---
 
 ## Instructions
+
+The instructions here are just aiming to run the code locally to see the proofs and the format of the commitment transaction. In case you'd like to publish the commitment transaction to `testnet` or `mainnet` please have your WIF, and the outpoint info from your UTXO in the corresponding network ready for the final script. 
+
+- To install the python dependencies run the following command in the root directory of the project: 
+```bash 
+pip3 install -r requirements.txt 
+``` 
+- To install the javascript dependencies run the following command in the root directory of the project:
+```bash 
+npm install 
+```
+- To run the phases of the protocol according to their order run the following command: 
+```bash
+./cagp.sh
+``` 
+Note: Depending on your responses, you may need to provide additional information to create the transaction. Please have this information ready beforehand.
+The script does not upload the IPFS file to any public service, so it is your responsibility to do so using a public gateway.
+Some examples of public gateways are:
+- https://ipfs.io
+- https://infura-ipfs.io
 
 ---
 
