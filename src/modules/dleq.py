@@ -35,7 +35,6 @@ class DLEQ:
         rhs = proof["sigma"] * self.curve.generator() + proof["delta"] * self.curve_H
         lhs = R_c + challenge * commitment
         assert lhs.x == rhs.x and lhs.y == rhs.y, "Check failed for the equality of private key and the commitment with blinding factor"
-        print(f"DLEQ verified for curve {self.curve.name}")
 
 
 
