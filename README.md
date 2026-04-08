@@ -6,8 +6,8 @@ This repository implements a distributed protocol to create a Bitcoin canary add
 
 ## Protocol Overview: CAGP
 
-The Canary Address Generation Protocol (CAGP) is a multi-phase, distributed protocol involving `n` participants and a coordinator. 
--- Add the diagram
+The Canary Address Generation Protocol (CAGP) is a multi-phase, distributed protocol involving `n` participants and a coordinator. The diagram of the steps carried out by each participant/coordinator in the protocol can be seen below: 
+![Protocol diagram](docs/protocol-diagram.png)
 
 ### Key Naming Convention
 
@@ -48,7 +48,7 @@ Here we will explain how the naming here in this repo matches the paper. ( do th
 
 ## Instructions
 
-The instructions here are just aiming to run the code locally to see the proofs and the format of the commitment transaction. In case you'd like to publish the commitment transaction to `testnet` or `mainnet` please have your WIF, and the outpoint info from your UTXO in the corresponding network ready for the final script. 
+The instructions here are just aiming to run the code locally to see the proofs and the format of the commitment transaction. In case you'd like to publish the commitment transaction to `testnet` or `mainnet` please have your WIF, and the outpoint info from your UTXO in the corresponding network ready. 
 
 - To install the python dependencies run the following command in the root directory of the project: 
 ```bash 
@@ -58,11 +58,20 @@ pip3 install -r requirements.txt
 ```bash 
 npm install 
 ```
-- To run the phases of the protocol according to their order run the following command: 
+- To run the protocol locally you first need to set the protocol parameters in the `/setup.json` file. Note that the automatic script only works for when the network is set to `regtest`. Below you can find the description regarding each parameter in the setup: 
+  - `max_num_participants`: This is the maximum number of participants allowed in the protocol. Exceeding this value would cause overflow in the aggregation of the public keys in `secp192r1`.
+  - `number_of_bits_of_secret_chunks`:  This is the size of the secret value for each chunk in bits ( in the paper it's referred to as `b_x`)
+  - `failure_rate`: This is the failure rate for which the prover has to repeat the proof generation process to create a valid `z`. ( in the paper it's referred to as `b_f`)
+  - `number_of_bits_of_challenge`: This is the size of the challenge for the proof in bits ( in the paper it's referred to as `b_c`)
+  - `number_of_chunks`: The number of chunks that the secret is devided into. 
+  - `network`: The network for which the values are going to be created. 
+  - `number_of_participants`: The actual number of participants you would like to run the tests for. 
+
+- To run the phases of the protocol according to their order run the following command ( only in case of `regtest` for `testnet` or `mainnet` run the scripts in the order in cagp.sh manually) 
 ```bash
 ./cagp.sh
 ``` 
-Note: Depending on your responses, you may need to provide additional information to create the transaction. Please have this information ready beforehand.
+Note: Depending on your responses, you may need to provide additional information to create the transaction. Please have this information ready beforehand. 
 The script does not upload the IPFS file to any public service, so it is your responsibility to do so using a public gateway.
 Some examples of public gateways are:
 - https://ipfs.io
