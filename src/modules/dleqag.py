@@ -133,8 +133,6 @@ class DLEQAG:
             lhs_btc = self.HSCurve.generator() * z[id] + s_256[id] * HSCurve_H
             rhs_btc = K_256[id] + curve_challenge * C_256[id]
             assert lhs_btc.x == rhs_btc.x and lhs_btc.y == rhs_btc.y, "BTC-curve check failed on the transition between curves"
-
-        print("Proof verified for discrete logarithm equality across groups.")
   
     def value_segmentation(self, value): 
         assert value <= self.secret_range 

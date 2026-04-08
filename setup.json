@@ -3,5 +3,7 @@
   "number_of_bits_of_secret_chunks": 64, 
   "failure_rate": 3, 
   "number_of_bits_of_challenge": 124, 
-  "number_of_chunks": 3
+  "number_of_chunks": 3, 
+  "network": "r", 
+  "number_of_participants":5
 }

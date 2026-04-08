@@ -49,8 +49,6 @@ def range_proof_verification(b_x, number_of_chunks, over_flow_bits, proof_dir, p
         except subprocess.CalledProcessError as e : 
             print(f"Verification failed with the error {e}")
 
-    print("Range proofs verified")
-
 
 def main():
     max_number_of_entities, b_x, b_f, b_c, number_of_chunks  = load_setup(SETUP_DIR)
@@ -58,7 +56,8 @@ def main():
     aggregated_pub_key_192, aggregated_pub_key_256 = None, None
     assert number_of_participants < max_number_of_entities, "Number of participants exeeding the allowed range!"
     #  For now we assume we are checking the last participant's proof 
-    for participant_id in range(1, number_of_participants + 1):
+    for participant_id in range(0, number_of_participants + 1):
+        print(f"Checking the proofs for participant number {participant_id}")
         proof_dir = dir[:-1]
         participant_dir = proof_dir + str(participant_id)
         over_flow_bits = ceil(log2(max_number_of_entities))
@@ -76,5 +75,6 @@ def main():
             aggregated_pub_key_256 += pubkeybtc
             aggregated_pub_key_192 += pubkeyweak
 
+    print("Proofs verified for all participants")
 if __name__ == "__main__":
     main()
