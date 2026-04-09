@@ -7,6 +7,7 @@ This repository implements a distributed protocol to create a Bitcoin canary add
 ## Protocol Overview: CAGP
 
 The Canary Address Generation Protocol (CAGP) is a multi-phase, distributed protocol involving `n` participants and a coordinator. The diagram of the steps carried out by each participant/coordinator in the protocol can be seen below: 
+
 ![Protocol diagram](docs/protocol-diagram.png)
 
 ### Key Naming Convention
