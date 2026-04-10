@@ -6,7 +6,10 @@ from modules.tools import load_setup
 from c2_PublicKeyAggregator import load_public_keys
 SETUP_DIR = "../setup.json"
 IPFS_DIR =  "../outputs/IPFS.json"
+
+
 def load_rangeproof(proof_dir, number_of_chunks, b_x, over_flow_bits):
+    """Load range proof chunks from disk for one participant."""
     proofs = []
     for index in range(number_of_chunks):
         proof_path = os.path.join(proof_dir, f"range_proof_{index}.json")
@@ -23,11 +26,12 @@ def load_rangeproof(proof_dir, number_of_chunks, b_x, over_flow_bits):
 
 
 def main():
+    """Collect participant proofs and write the IPFS payload JSON."""
     max_number_of_entities, b_x, _, _ , number_of_chunks  = load_setup(SETUP_DIR)
     dir , number_of_participants = get_latest_participant_dir()
     dleqag_proofs, rangeproofs = [], []
     assert number_of_participants < max_number_of_entities, "Number of participants exeeding the allowed range!"
-    #  For now we assume we are checking the last participant's proof 
+    # For now, include participants from 1 through the latest participant index.
     for participant_id in range(1, number_of_participants + 1):
         proof_dir = dir[:-1]
         participant_dir = proof_dir + str(participant_id)
