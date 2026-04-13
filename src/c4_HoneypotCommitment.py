@@ -10,8 +10,9 @@ from bitcoinutils.transactions import Transaction, TxInput, TxOutput, TxWitnessI
 from bitcoinutils.keys import PrivateKey
 from bitcoinutils.script import Script
 
+
 def coords_to_compressed(pub_coords):
-    #transform point coordinates to compressed pubkey
+    """Convert affine public key coordinates to compressed SEC format."""
     x, y = pub_coords
     x_bytes = x.to_bytes(32, "big")          
     y_odd = y & 1
@@ -19,20 +20,21 @@ def coords_to_compressed(pub_coords):
     comp = prefix + x_bytes
     return comp.hex(), comp
 
+
 def load_internal_pubkey_hex_from_ipfs():
+    """Load the first aggregated secp256k1 public key from IPFS.json as hex."""
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     ipfs_path = os.path.join(base_dir, 'outputs', 'IPFS.json')
     with open(ipfs_path, 'r') as f:
         j = json.load(f)
-    # adjust path if your JSON structure differs
+    # Adjust this path if the JSON schema changes.
     pub_coords = j['dleqag_proofs'][0]['pub_key_256']
     hex_str, _ = coords_to_compressed(pub_coords)
     return hex_str
 
 
 def compute_sha256_of_ipfs_file():
-    #do the sha256 of IPFS.json
-    
+    """Return raw SHA-256 bytes and hex digest of IPFS.json."""
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     ipfs_path = os.path.join(base_dir, 'outputs', 'IPFS.json')
     with open(ipfs_path, 'rb') as f:
@@ -42,36 +44,37 @@ def compute_sha256_of_ipfs_file():
 
 
 def tweak_public_key(tweak, agg_key_hex):
-     # Load internal public key
+    """Taproot-tweak an internal public key using the provided commitment bytes."""
+    # Load internal public key.
     internal_pubkey = PublicKey(agg_key_hex)
     internal_pubkey_bytes = internal_pubkey.to_bytes()
     
-    #Ensure x-only (32 bytes)
+    # Ensure x-only (32 bytes).
     if len(internal_pubkey_bytes) == 33:
         xonly = internal_pubkey_bytes[1:]
     else:
         xonly = internal_pubkey_bytes
 
-    # Generate the tweak using tagged_hash
-    tap_tweak = tagged_hash(xonly + tweak, "TapTweak")  # We ensure that the tweak is derived from the internal public key and the commitment message (unique)
+    # Derive tweak from internal key and commitment message.
+    tap_tweak = tagged_hash(xonly + tweak, "TapTweak")
     tweak_int = int.from_bytes(tap_tweak, 'big')
 
-    # Tweak the internal public key
-    tweaked_pubkey_bytes, is_odd = tweak_taproot_pubkey(internal_pubkey_bytes,tweak_int)  # Returns tweaked public key bytes and whether the y-coordinate is odd or even
-    prefix = b'\x03' if is_odd else b'\x02'  # Add prefix for compressed format
+    # Tweak the internal public key and reconstruct compressed encoding.
+    tweaked_pubkey_bytes, is_odd = tweak_taproot_pubkey(internal_pubkey_bytes,tweak_int)
+    prefix = b'\x03' if is_odd else b'\x02'
     compressed_key = prefix + tweaked_pubkey_bytes
     tweaked_pubkey_hex = compressed_key.hex()
 
-    # Create tweaked public key and taproot address
+    # Create tweaked public key and taproot address.
     tweaked_pubkey = PublicKey.from_hex(tweaked_pubkey_hex)
     taproot_address = tweaked_pubkey.get_taproot_address()
     print("Honeypot Address:", taproot_address.to_string())
 
     return taproot_address
 
-# This function retrieves the information necessary to create 
-#   the transaction in a testnet/mainnet network from the user
+
 def get_tx_info() -> tuple[PrivateKey, str, int, float, float, any]:
+    """Prompt the user for transaction inputs needed to fund the honeypot output."""
     while True:
         response = input("Creating the honeypot funding transaction, " \
                     "please enter your private key WIF: ")
@@ -96,7 +99,9 @@ def get_tx_info() -> tuple[PrivateKey, str, int, float, float, any]:
                         "(!!!REMINDER: the rest will be the fee!!!): ").strip())
     return priv, txid, vout, amount_btc, pay_amount_btc, from_address
 
+
 def generate_dummy_regtest_data():
+    """Generate placeholder UTXO data for local regtest usage."""
     priv = PrivateKey()
     pub = priv.get_public_key()
     from_address = pub.get_taproot_address()
@@ -108,8 +113,10 @@ def generate_dummy_regtest_data():
 
     return priv, txid, vout, amount_btc, pay_amount_btc, from_address
 
+
 def create_op_return_tx(network, taproot_address):
-    # always remember to setup the network
+    """Build and sign a transaction funding taproot output plus OP_RETURN."""
+    # Initialize the selected Bitcoin network.
     setup(network)
     if network in ("testnet", "mainnet") :
         priv, txid, vout, amount_btc, pay_amount_btc, from_address = get_tx_info()
@@ -145,7 +152,7 @@ def create_op_return_tx(network, taproot_address):
 
 
 if __name__ == '__main__':
-    # Initialize Bitcoin network
+    # Ask the user to choose the network before creating the transaction.
     while True:
         net_choice = input("Select network: (m)ainnet, (t)estnet, or regtest(r)?: ").strip().lower()
         if net_choice == "t":
