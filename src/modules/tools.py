@@ -4,14 +4,11 @@ from coincurve import PrivateKey
 from bitcoinutils.keys import PrivateKey as BitcoinPrivateKey
 from bitcoinutils.utils import tweak_taproot_privkey
 from modules.descriptor import descsum_create
-from modules.curves import Secp256k1
 from cid import make_cid
 import hashlib
 import os 
 import json
 import base58
-import requests
-
 
 def check_private_key(secp192r1_privatekey_raw, secp192r1_pub):
     secp192r1_processed = serialization.load_pem_private_key(
