@@ -1,6 +1,6 @@
 # CAGP: Canary Address Generation Protocol
 
-This repository implements a distributed protocol to create a Bitcoin canary address that is less secure in comparison to Bitcoin's native address' by design. The canary trap serves as a public alert: if its funds are ever spent, it signals that a quantum computer has broken the ECDLP on `secp192r1` (and is approaching the security of Bitcoin's `secp256k1`) with a very high probability. The protocol is implemented in Python and leverages several cryptographic libraries.
+This repository is a proof of concept implementation of [CAGP](https://eprint.iacr.org/2026/618.pdf), a distributed protocol to create a Bitcoin canary address that is less secure in comparison to Bitcoin's native address' by design. The canary trap serves as a public alert: if its funds are ever spent, it signals that a quantum computer has broken the ECDLP on `secp192r1` (and is approaching the security of Bitcoin's `secp256k1`) with a very high probability. The protocol is implemented in Python and leverages several cryptographic libraries.
 
 ---
 
@@ -59,6 +59,7 @@ pip3 install -r requirements.txt
 ```bash 
 npm install 
 ```
+  Note that this repository requires Node.js version 16 or higher (preferably version 24).
 - To run the protocol locally you first need to set the protocol parameters in the `/setup.json` file. Note that the automatic script only works for when the network is set to `regtest`. Below you can find the description regarding each parameter in the setup: 
   - `max_num_participants`: This is the maximum number of participants allowed in the protocol. Exceeding this value would cause overflow in the aggregation of the public keys in `secp192r1`.
   - `number_of_bits_of_secret_chunks`:  This is the size of the secret value for each chunk in bits ( in the paper it's referred to as `b_x`)
