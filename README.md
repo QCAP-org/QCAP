@@ -74,10 +74,11 @@ npm install
 ./cagp.sh
 ``` 
 Note: Depending on your responses, you may need to provide additional information to create the transaction. Please have this information ready beforehand. 
-The script does not upload the IPFS file to any public service, so it is your responsibility to do so using a public gateway.
-Some examples of public gateways are:
-- https://ipfs.io
-- https://infura-ipfs.io
+The script does not upload the IPFS file to any public service, so it is your responsibility to do so using a IPFS Pinning Service or your own IPFS Node.
+Some examples of free IPFS Pinning Services (require login):
+- https://pinata.cloud/ipfs
+- https://storacha.network
+- https://filebase.com
 
 ---
 
