@@ -16,7 +16,7 @@ SETUP_DIR = "../setup.json"
 CURRENT_PARTICIPANT_DIR = None
 
 def create_new_participant_dir():
-    #Create a new participant_N folder inside ../outputs/participant for this execution.
+    """Create and return a new participant_N directory for this execution."""
     global CURRENT_PARTICIPANT_DIR
     base = "../outputs/participant"
     os.makedirs(base, exist_ok=True)
@@ -25,6 +25,7 @@ def create_new_participant_dir():
         m = re.match(r'^participant_(\d+)$', name)
         if m:
             existing.append(int(m.group(1)))
+    # Use the next numeric suffix to avoid overwriting prior participant runs.
     next_idx = max(existing) + 1 if existing else 0
     participant_dir = os.path.join(base, f"participant_{next_idx}")
     os.makedirs(participant_dir, exist_ok=True)
@@ -34,7 +35,7 @@ def create_new_participant_dir():
     return participant_dir
 
 def get_latest_participant_dir():
-    # Return the most recently created participant_N directory (highest N).
+    """Return the latest participant_N directory path and its numeric index."""
     base = "../outputs/participant"
     if not os.path.exists(base):
         raise FileNotFoundError(f"No participant base directory found: {base}")
@@ -48,37 +49,28 @@ def get_latest_participant_dir():
     latest_idx = max(existing)
     return os.path.join(base, f"participant_{latest_idx}"), latest_idx
 
-
-# seed bits calculation for key generation
 def seed_bits_calc_keygen(num_participants):
-    # Calculate bits of the seed (192-log2(n))
+    """Return seed bit length for key generation as floor(log2(n_192) - log2(p))."""
     bits_seed = math.log2(Secp192r1.field.n) - math.log2(num_participants)
     return math.floor(bits_seed)
 
-# seed bits calculation for proof generation
 def seed_bits_calc_proofgen(num_participants):
-    # Calculate bits of the seed (log2(n))
+    """Return seed bit length for proof generation as ceil(log2(p))."""
     bits_seed = math.log2(num_participants)
     return math.ceil(bits_seed)
 
 def seedgen(num_participants):
-    # Use secrets to generate random bit sequence
+    """Generate a random seed with the required key-generation bit length."""
     seed = secrets.randbits(seed_bits_calc_keygen(num_participants))
     return seed
 
 def bitcoinkeygen(seed, network):
-    # always remember to setup the network
+    """Generate and persist a Bitcoin private key for a new participant directory."""
     setup(network)
 
-    # create a private key (from our generated bits)
     priv = PrivateKey(secret_exponent=seed)
-    # compressed is the default
-
-    # get the public key
     pub = priv.get_public_key()
    
-    # create the directory if it doesn't exist
-    # create a new participant folder for each run and use its keys subfolder
     keys_dir = os.path.join(create_new_participant_dir(), "keys")
     os.makedirs(keys_dir, exist_ok=True)
 
@@ -88,35 +80,36 @@ def bitcoinkeygen(seed, network):
     pub_x_hex = pub_hex_uncompressed[2:66]
     pub_x_int = int(pub_x_hex, 16)
 
-    # save private key to file
     priv_path = os.path.join(keys_dir, f"private_key_{pub_x_int}_{network}_DO_NOT_SHARE.txt")
     with open(priv_path, "w") as priv_file:
         priv_file.write(priv.to_wif(compressed=True))
 
 
 def derive_private_key():
+    """Load and return the latest private key as an EC object plus participant index."""
     dir, id = get_latest_participant_dir()
     priv_key_int = load_private_key(os.path.join(dir, "keys"))
-    # Create EC private key object from integer
     priv_key = ec.derive_private_key(priv_key_int, ec.SECP256K1())
     return priv_key, id
 
 def wif_to_int(wif):
+    """Convert a WIF-encoded private key into its integer representation."""
     priv = PrivateKey(wif)
     priv_bytes = priv.to_bytes()
     di = int.from_bytes(priv_bytes, 'big')
     return di
 
 def load_private_key(keys_dir):
-    # Get the private key from the file
+    """Load the single private key file in keys_dir and return it as an integer."""
     files = [f for f in os.listdir(keys_dir) if re.match(r'private_key_.*_DO_NOT_SHARE\.txt', f)]
     if not files:
         raise FileNotFoundError(f"No private key file found in {keys_dir}")
     if len(files) > 1:
         raise FileExistsError(f"Multiple private key files found in {keys_dir}. Expected only one.")
+    # Enforce a single key file to keep participant state unambiguous.
     priv_key_filename = files[0]
     priv_key_path = os.path.join(keys_dir, priv_key_filename)
-    # Extract network from filename
+    # Recover network from the filename so WIF decoding uses the right prefix rules.
     match = re.search(r'_(mainnet|testnet|regtest)_DO_NOT_SHARE\.txt$', priv_key_filename)
     if not match:
         raise ValueError(f"Network not found in private key filename: {priv_key_filename}")
@@ -125,19 +118,20 @@ def load_private_key(keys_dir):
     with open(priv_key_path, "r") as f:
         wif_key = f.read().strip()
 
-    # Convert WIF to integer private key
     priv_key_int = wif_to_int(wif_key)
     return priv_key_int
 
 def bulletproof_generation(input, number_of_chunks, b_x, over_flow_bits):
+    """Generate one Bulletproof per chunk by invoking the Node.js generator."""
     assert b_x > over_flow_bits, "Too many participants."
     script_path = os.path.join(os.path.dirname(__file__), "modules", "bulletproofs", "bulletproof.js")
     path, _ = get_latest_participant_dir()
     proofs_dir = os.path.join("../../"+path, "proofs/")
     proofs = []
     for index in range(number_of_chunks):
+        # The final chunk uses fewer bits to account for overflow trimming.
         result = subprocess.run(
-        ["node", script_path, "gen", proofs_dir , str( b_x - int(index == number_of_chunks -1) * over_flow_bits), str(input["private_key_chunks"][index]), str(input["random_chunks"][index]), str(index), "1"],  # pass arguments
+        ["node", script_path, "gen", proofs_dir , str( b_x - int(index == number_of_chunks -1) * over_flow_bits), str(input["private_key_chunks"][index]), str(input["random_chunks"][index]), str(index), "1"],  # Pass CLI arguments.
         capture_output=True,
         text=True
         )
@@ -150,7 +144,7 @@ def bulletproof_generation(input, number_of_chunks, b_x, over_flow_bits):
 
 
 def generate_private_key(max_number_of_participants):
-    # Initialize Bitcoin network
+    """Prompt for a network, generate a private key, and save it to disk."""
     while True:
         net_choice = input("Select network: (m)ainnet, (t)estnet, or regtest(r)?: ").strip().lower()
         if net_choice == "t":
@@ -165,30 +159,24 @@ def generate_private_key(max_number_of_participants):
         print("Invalid input. Please enter 't' for testnet or 'm' for mainnet.")
     
     print("Generating your private key and saving into .txt files...\n")
-    # Generation of seed
     seed = seedgen(max_number_of_participants)
-    # Generation of Bitcoin private key (dg)
     bitcoinkeygen(seed, network)
     keys_saved_dir = os.path.join(CURRENT_PARTICIPANT_DIR, "keys") if CURRENT_PARTICIPANT_DIR else KEYS_DIR
     print("Private key generated and saved successfully into ", keys_saved_dir)
 
 def main():
+    """Run key generation and produce DLEQ and Bulletproof artifacts."""
     print("Welcome to HAGP protocol!\n")
     max_number_of_entities, b_x, b_f, b_c, number_of_chunks  = load_setup(SETUP_DIR)
-    #  Generate bitocin private/public key according to the setup 
     generate_private_key(max_number_of_entities) 
-    # Set the proof generation up 
     over_flow_bits = seed_bits_calc_proofgen(max_number_of_entities)
     private_key, _ = derive_private_key()
-    # Proof generation process : 
+    # Shift by overflow bits to define the range proven by chunked proofs.
     private_key_range = Secp192r1.field.n >> over_flow_bits
-    #       Proof generation for discrete logarithm equality over two curves 
     dleqag_inst = DLEQAG(b_x, b_f, b_c, number_of_chunks, private_key_range, Secp256k1, Secp192r1)
     dleqag_proof, bulletproof_input = dleqag_inst.proof_gen(private_key.private_numbers().private_value)
-    #       Proof generation for discrete logarithm equality over Bitcoin  
     dleq_secp256k1_inst = DLEQ(Secp256k1)
     dleq_proof_secp256k1 = dleq_secp256k1_inst.proof_gen(dleqag_proof["r_HS"], private_key.private_numbers().private_value)
-    #       Proof generation for discrete logarithm equality over NIST192  
     dleq_secp192r1_inst = DLEQ(Secp192r1)
     dleq_proof_secp192r1 = dleq_secp192r1_inst.proof_gen(dleqag_proof["r_LS"],  private_key.private_numbers().private_value)
     json_data = {
