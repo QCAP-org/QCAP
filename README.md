@@ -1,10 +1,6 @@
 # CAGP: Canary Address Generation Protocol
 
-<<<<<<< documentation
 This repository implements a distributed protocol to create a Bitcoin canary address that is less secure in comparison to Bitcoin's native address' by design. The canary trap serves as a public alert: if its funds are ever spent, it signals that a sufficiently powerful computer, and probably a quantum computer has broken the ECDLP on `secp192r1` (and is approaching to break the security of Bitcoin's `secp256k1`). The protocol is implemented in Python and leverages several cryptographic libraries.
-=======
-This repository is a proof of concept implementation of [CAGP](https://eprint.iacr.org/2026/618.pdf), a distributed protocol to create a Bitcoin canary address that is less secure in comparison to Bitcoin's native address' by design. The canary trap serves as a public alert: if its funds are ever spent, it signals that a quantum computer has broken the ECDLP on `secp192r1` (and is approaching the security of Bitcoin's `secp256k1`) with a very high probability. The protocol is implemented in Python and leverages several cryptographic libraries.
->>>>>>> main
 
 ---
 
