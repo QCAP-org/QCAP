@@ -1,6 +1,6 @@
 const bulletproofs = require('bulletproof-js');
 const EC = require('elliptic').ec;
-const { assert, expect } = require('chai');
+const assert = require('node:assert');
 const ProofFactory = bulletproofs.ProofFactory;
 const ProofUtils = bulletproofs.ProofUtils;
 const secp256k1 = bulletproofs.Constants.secp256k1;
@@ -20,7 +20,7 @@ function proof_gen(secret, random, range_in_bit_size){
 function proof_verif(range_in_bits, proof_json){
     const uncompr_proof_inst = bulletproofs.UncompressedProofs; 
     const uncompr_proof = uncompr_proof_inst.fromJsonString(proof_json); 
-    assert (uncompr_proof.verify(0n, range_in_bits), "proof is invalid");
+    assert.strictEqual (uncompr_proof.verify(0n, range_in_bits), "proof is invalid");
     console.log("Proof is valid");
 }
 
