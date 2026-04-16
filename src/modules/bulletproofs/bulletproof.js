@@ -1,3 +1,7 @@
+// Copyright (c) 2025-present nebula, Gazelle
+// Distributed under the MIT software license, see the accompanying
+// file LICENSE or https://www.opensource.org/licenses/mit-license.php.
+
 const bulletproofs = require('bulletproof-js');
 const EC = require('elliptic').ec;
 const assert = require('node:assert');
