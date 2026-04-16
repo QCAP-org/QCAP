@@ -1,12 +1,12 @@
-# CAGP: Canary Address Generation Protocol
+# QCAP: A Quantum Canary Address Generation Protocol
 
 This repository implements a distributed protocol to create a Bitcoin canary address that is less secure in comparison to Bitcoin's native address' by design. The canary trap serves as a public alert: if its funds are ever spent, it signals that a sufficiently powerful computer, and probably a quantum computer has broken the ECDLP on `secp192r1` (and is approaching to break the security of Bitcoin's `secp256k1`). The protocol is implemented in Python and leverages several cryptographic libraries.
 
 ---
 
-## Protocol Overview: CAGP
+## Protocol Overview: QCAP
 
-The Canary Address Generation Protocol (CAGP) is a multi-phase, distributed protocol involving `n` participants and a coordinator. The diagram of the steps carried out by each participant/coordinator in the protocol can be seen below: 
+The Quantum Canary Address Generation Protocol (QCAP) is a multi-phase, distributed protocol involving `n` participants and a coordinator. The diagram of the steps carried out by each participant/coordinator in the protocol can be seen below: 
 
 ![Protocol diagram](docs/protocol-diagram.png)
 
