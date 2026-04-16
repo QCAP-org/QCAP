@@ -10,10 +10,6 @@ The Canary Address Generation Protocol (CAGP) is a multi-phase, distributed prot
 
 ![Protocol diagram](docs/protocol-diagram.png)
 
-### Key Naming Convention
-
-Here we will explain how the naming here in this repo matches the paper. ( do this after cleaning up the repo)
-
 ---
 
 ## Protocol Phases
