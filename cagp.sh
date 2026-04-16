@@ -1,4 +1,8 @@
 #!/bin/bash
+# Copyright (c) 2025-present nebula, Gazelle
+# Distributed under the MIT software license, see the accompanying
+# file LICENSE or https://www.opensource.org/licenses/mit-license.php.
+
 set +e
 number_of_participants=$(cat setup.json | jq -r ".number_of_participants")
 network=$(cat setup.json | jq -r ".network") 
